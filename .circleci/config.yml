@@ -1,0 +1,23 @@
+version: 2.1
+
+jobs:
+  build:
+    parallelism: 5
+    docker:
+      - image: cimg/openjdk:21.0.2
+    steps:
+      - checkout
+      - run: gradle init
+      - run: gradle wrapper
+      - restore_cache:
+          keys:
+            - v1-gradle-cache-{{ checksum "app/build.gradle" }}-{{ checksum "settings.gradle" }}
+      
+      - run: ./gradlew build
+      
+      - save_cache:
+          paths:
+            - ~/.gradle/caches/
+          key: v1-gradle-cache-{{ checksum "app/build.gradle" }}-{{ checksum "settings.gradle" }}
+      
+      - run: ./gradlew tasks
